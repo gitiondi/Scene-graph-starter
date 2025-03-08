@@ -1,4 +1,5 @@
 ﻿using SFML.Graphics;
+using SFML.System;
 using SFML.Window;
 
 namespace Views
@@ -7,7 +8,7 @@ namespace Views
     {
         private RenderWindow _window;
         private readonly Texture _texture;
-        private Sprite _sprite;
+        private readonly Sprite _sprite;
         private readonly View _view;
 
         public MainScreen()
@@ -74,10 +75,16 @@ namespace Views
             switch (e.Code)
             {
                 case Keyboard.Key.Left:
-
+                    _sprite.Position = new Vector2f(_sprite.Position.X + 10, _sprite.Position.Y);
                     break;
                 case Keyboard.Key.Right:
-                    //view.Move(new SFML.System.Vector2f(10, 0));
+                    _sprite.Position = new Vector2f(_sprite.Position.X - 10, _sprite.Position.Y);
+                    break;
+                case Keyboard.Key.Up:
+                    _sprite.Position = new Vector2f(_sprite.Position.X, _sprite.Position.Y + 10);
+                    break;
+                case Keyboard.Key.Down:
+                    _sprite.Position = new Vector2f(_sprite.Position.X, _sprite.Position.Y - 10);
                     break;
             }
         }
