@@ -36,9 +36,22 @@ namespace Views
             float verticalBorder = windowHeight * 0.1f;
 
             // Create the View
-            _view = new View(new FloatRect(200, 200, 300, 200));
-            _view.Center = new SFML.System.Vector2f(200, 200);
-            _view.Viewport = new FloatRect(0.25f, 0.25f, 0.5f, 0.5f);
+            _view = new View(new FloatRect(150, 150, 500, 400));
+            _view.Center = new Vector2f(200, 200);
+            _view.Viewport = new FloatRect(0.1f, 0.15f, 0.7f, 0.7f);
+
+            // View is an SFML class that defines a 2D camera. It allows you to control which part of the scene is visible in the window.
+            // FloatRect(150, 150, 500, 400) defines the rectangle that the view will initially display. This rectangle starts at the point (150, 150) and has a width of 500 and a height of 400.
+
+            // Center is a property of the View class that sets the center point of the view.
+            // Vector2f(200, 200) sets the center of the view to the point (200, 200). This means that the view will be centered around this point in the scene.
+
+            // Viewport is a property of the View class that defines the portion of the window where the view will be displayed.
+            // FloatRect(0.15f, 0.15f, 0.7f, 0.7f) specifies the viewport rectangle in normalized coordinates (ranging from 0 to 1). This means:
+            // The viewport starts at 15% of the window's width and height from the top-left corner.
+            // The viewport covers 70% of the window's width and height.
+
+
 
             // Set the View for the window
             _window.SetView(_view);
