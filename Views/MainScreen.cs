@@ -10,6 +10,8 @@ namespace Views
         private readonly Texture _texture;
         private readonly Sprite _sprite;
         private readonly View _view;
+        private Clock _clock;
+        private const float Speed = 100f; // Speed in pixels per second
 
         public MainScreen()
         {
@@ -58,6 +60,9 @@ namespace Views
 
             // Limit the framerate to 60 frames per second
             _window.SetFramerateLimit(60);
+
+            // Initialize the clock
+            _clock = new Clock();
         }
 
         public MainScreen execute()
@@ -73,6 +78,9 @@ namespace Views
                 // Clear screen
                 _window.Clear();
 
+                // Update the sprite's position based on elapsed time
+                UpdateSpritePosition();
+
                 // Draw the sprite
                 _window.Draw(_sprite);
 
@@ -83,23 +91,31 @@ namespace Views
             return this;
         }
 
+        private void UpdateSpritePosition()
+        {
+            float deltaTime = _clock.Restart().AsSeconds();
+
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+            {
+                _sprite.Position += new Vector2f(-Speed * deltaTime, 0);
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            {
+                _sprite.Position += new Vector2f(Speed * deltaTime, 0);
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
+            {
+                _sprite.Position += new Vector2f(0, -Speed * deltaTime);
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
+            {
+                _sprite.Position += new Vector2f(0, Speed * deltaTime);
+            }
+        }
+
         private void Window_OnKeyPressed(object? sender, KeyEventArgs e)
         {
-            switch (e.Code)
-            {
-                case Keyboard.Key.Left:
-                    _sprite.Position = new Vector2f(_sprite.Position.X + 10, _sprite.Position.Y);
-                    break;
-                case Keyboard.Key.Right:
-                    _sprite.Position = new Vector2f(_sprite.Position.X - 10, _sprite.Position.Y);
-                    break;
-                case Keyboard.Key.Up:
-                    _sprite.Position = new Vector2f(_sprite.Position.X, _sprite.Position.Y + 10);
-                    break;
-                case Keyboard.Key.Down:
-                    _sprite.Position = new Vector2f(_sprite.Position.X, _sprite.Position.Y - 10);
-                    break;
-            }
+            // for future use
         }
     }
 }
