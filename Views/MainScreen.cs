@@ -23,7 +23,8 @@ namespace Views
             rootPath = Path.Combine(rootPath) + Path.DirectorySeparatorChar;
             string resPath = Path.Combine(rootPath, "resources") + Path.DirectorySeparatorChar;
             string imgPath = Path.Combine(resPath, "images") + Path.DirectorySeparatorChar;
-            string imgFile = Path.Combine(imgPath, "dungeon.jpeg");
+            //string imgFile = Path.Combine(imgPath, "dungeon.jpeg");
+            string imgFile = Path.Combine(imgPath, "cartesian_grid.png");
             imgFile = imgFile.Replace("\\", "/");
 
             _texture = new Texture(imgFile);
@@ -37,10 +38,23 @@ namespace Views
             float horizontalBorder = windowWidth * 0.1f;
             float verticalBorder = windowHeight * 0.1f;
 
+
+            var viewPortWidth = 0.9f;
+            var viewPortHeight = 0.6f;
+            var viewPortAspect = (windowWidth * viewPortWidth) / (windowHeight * viewPortHeight);
+
+            var viewPortRect = new FloatRect(0.05f, 0.1f, viewPortWidth, viewPortHeight);
+
+            var viewRectWidth = 1200f;
+            var viewRectHeight = viewRectWidth / viewPortAspect;
+            var viewRectAspect = viewRectWidth / viewRectHeight;
+
+            var viewRect = new FloatRect(1000, 1000, viewRectWidth, viewRectHeight);
+
             // Create the View
-            _view = new View(new FloatRect(150, 150, 500, 400));
-            _view.Center = new Vector2f(200, 200);
-            _view.Viewport = new FloatRect(0.1f, 0.15f, 0.7f, 0.7f);
+            _view = new View(viewRect);
+            _view.Center = new Vector2f(1000, 1000);
+            _view.Viewport = viewPortRect;
 
             // View is an SFML class that defines a 2D camera. It allows you to control which part of the scene is visible in the window.
             // FloatRect(150, 150, 500, 400) defines the rectangle that the view will initially display. This rectangle starts at the point (150, 150) and has a width of 500 and a height of 400.
