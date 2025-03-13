@@ -45,7 +45,9 @@ namespace Views
 
             var viewPortRect = new FloatRect(0.05f, 0.1f, viewPortWidth, viewPortHeight);
 
-            var viewRectWidth = 1200f;
+            var viewWidthAbs = windowWidth * viewPortWidth;
+
+            var viewRectWidth = viewWidthAbs;
             var viewRectHeight = viewRectWidth / viewPortAspect;
             var viewRectAspect = viewRectWidth / viewRectHeight;
 
