@@ -95,7 +95,10 @@ namespace Views
                 _window.Clear();
 
                 // Update the sprite's position based on elapsed time
-                UpdateSpritePosition();
+                // UpdateSpritePosition();
+
+                // Update the view
+                UpdateViewCenter();
 
                 // Draw the sprite
                 _window.Draw(_sprite);
@@ -105,6 +108,40 @@ namespace Views
             }
 
             return this;
+        }
+
+        private void UpdateViewCenter()
+        {
+            if (!_window.HasFocus())
+            {
+                return;
+            }
+
+            float deltaTime = _clock.Restart().AsSeconds();
+
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+            {
+                //_view.Center += new Vector2f(-Speed * deltaTime, 0);
+                _view.Move(new Vector2f(-Speed * deltaTime, 0));
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            {
+                //_view.Center += new Vector2f(Speed * deltaTime, 0);
+                _view.Move(new Vector2f(Speed * deltaTime, 0));
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
+            {
+                //_view.Center += new Vector2f(0, -Speed * deltaTime);
+                _view.Move(new Vector2f(0, -Speed * deltaTime));
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
+            {
+                //_view.Center += new Vector2f(0, Speed * deltaTime);
+                _view.Move(new Vector2f(0, Speed * deltaTime));
+            }
+
+            // Set the updated view back to the window
+            _window.SetView(_view);
         }
 
         private void UpdateSpritePosition()
