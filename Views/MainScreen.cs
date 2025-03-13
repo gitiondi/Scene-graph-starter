@@ -30,6 +30,11 @@ namespace Views
             _texture = new Texture(imgFile);
             _sprite = new Sprite(_texture);
 
+            // Set the origin of the sprite to its center
+            var spriteCenter = new Vector2f(_sprite.TextureRect.Width / 2f, _sprite.TextureRect.Height / 2f);
+            _sprite.Origin = spriteCenter;
+            _sprite.Position = new Vector2f(1000, 1000);
+
             // Calculate the window dimensions
             float windowWidth = _window.Size.X;
             float windowHeight = _window.Size.Y;
@@ -84,6 +89,7 @@ namespace Views
         public MainScreen execute()
         {
             _window.KeyPressed += Window_OnKeyPressed;
+            _window.MouseWheelScrolled += Window_OnMouseWheelScrolled;
 
             // Main loop
             while (_window.IsOpen)
@@ -109,6 +115,21 @@ namespace Views
 
             return this;
         }
+
+        private void Window_OnMouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
+        {
+            // Calculate the center of the sprite
+            var spriteCenter = new Vector2f(_sprite.TextureRect.Width / 2f, _sprite.TextureRect.Height / 2f);
+
+            // Set the origin of the sprite to its center
+            _sprite.Origin = spriteCenter;
+
+           //Scale the sprite
+           var scale = _sprite.Scale;
+           var f = 1 + 0.05f * e.Delta;
+           _sprite.Scale = new Vector2f(f * scale.X, f * scale.Y);
+        }
+
 
         private void UpdateViewCenter()
         {
