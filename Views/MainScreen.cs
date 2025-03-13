@@ -107,6 +107,11 @@ namespace Views
 
         private void UpdateSpritePosition()
         {
+            if (!_window.HasFocus())
+            {
+                return;
+            }
+
             float deltaTime = _clock.Restart().AsSeconds();
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
