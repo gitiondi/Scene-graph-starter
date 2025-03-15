@@ -17,6 +17,8 @@ namespace Views
 
         private const float Speed = 100f; // Speed in pixels per second
 
+        private Rectangle? _selectedRectangle;
+
         public MainScreen()
         {
             _window = new RenderWindow(new VideoMode(1280, 720), "SFML Works!");
@@ -33,6 +35,7 @@ namespace Views
 
             _texture = new Texture(imgFile);
             _sprite = new Sprite(_texture);
+            _selectedRectangle = null;
 
             // Set the origin of the sprite to its center
             var spriteCenter = new Vector2f(_sprite.TextureRect.Width / 2f, _sprite.TextureRect.Height / 2f);
@@ -85,8 +88,12 @@ namespace Views
 
             // Draw a rectangle in the upper left corner of the viewport
             _rectangles = new Rectangles();
-            _rectangles.AddRectangle(new Vector2f(50, 50), Color.Yellow);
-            _rectangles.Position = _upperLeftViewportCorner;
+            var rect = _rectangles.AddRectangle(new Vector2f(50, 50), Color.Yellow);
+            rect.Position = _upperLeftViewportCorner;
+
+            rect = _rectangles.AddRectangle(new Vector2f(50, 50), Color.Red);
+            var redRectPos = new Vector2f(_upperLeftViewportCorner.X, _upperLeftViewportCorner.Y + 50);
+            rect.Position = redRectPos;
 
 
             // Set the View for the window
@@ -103,6 +110,7 @@ namespace Views
         {
             _window.KeyPressed += Window_OnKeyPressed;
             _window.MouseWheelScrolled += Window_OnMouseWheelScrolled;
+            _window.MouseButtonPressed += Window_OnMouseButtonPressed;
 
             // Main loop
             while (_window.IsOpen)
@@ -127,7 +135,10 @@ namespace Views
 
                 // Position the rectangle in viewport coordinates
                 UpdateRectangle();
-                _rectangles.Draw(_window);
+                foreach (var rectangle in _rectangles)
+                {
+                    rectangle.Draw(_window);
+                }
 
                 // Restore the original view
                 _window.SetView(currentView);
@@ -137,6 +148,15 @@ namespace Views
             }
 
             return this;
+        }
+
+        private void Window_OnMouseButtonPressed(object? sender, MouseButtonEventArgs e)
+        {
+            if (_selectedRectangle == null)
+            {
+                var position = Mouse.GetPosition(_window);
+
+            }
         }
 
         private void UpdateRectangle()
@@ -149,8 +169,8 @@ namespace Views
             float deltaTime = _clock.Restart().AsSeconds();
             var rectangleSpeed = 10000f;
 
-            var rectangleX = _rectangles.Position.X;
-            var rectangleY = _rectangles.Position.Y;
+            var rectangleX = _rectangles[0].Position.X;
+            var rectangleY = _rectangles[0].Position.Y;
 
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.Left) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
@@ -170,7 +190,7 @@ namespace Views
                 rectangleY += rectangleSpeed * deltaTime;
             }
 
-            _rectangles.Position = new Vector2f(rectangleX, rectangleY);
+            _rectangles[0].Position = new Vector2f(rectangleX, rectangleY);
         }
 
         private void Window_OnMouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)

@@ -1,31 +1,43 @@
-﻿using SFML.Graphics;
+﻿using System.Collections;
+using SFML.Graphics;
 using SFML.System;
 
 namespace Views
 {
-    public class Rectangles
+    public class Rectangles : IEnumerable<Rectangle>
     {
-        private RectangleShape _rectangle;
 
-        public Vector2f Position
-        {
-            get => _rectangle.Position;
-            set => _rectangle.Position = value;
-        }
+        private List<Rectangle> _rectangles;
 
         public Rectangles()
         {
+            _rectangles = new List<Rectangle>();
         }
 
-        public void AddRectangle(Vector2f size, Color color)
+        public Rectangle AddRectangle(Vector2f size, Color color)
         {
-            _rectangle = new RectangleShape(new Vector2f(50, 50));
-            _rectangle.FillColor = Color.Yellow;
+            var rectangle = new Rectangle(size, color, _rectangles.Count);
+            _rectangles.Add(rectangle);
+            return rectangle;
         }
 
-        public void Draw(RenderWindow window)
+        //Indexer
+        public Rectangle this[int index]
         {
-            window.Draw(_rectangle);
+            get => _rectangles[index];
+        }
+
+        public IEnumerator<Rectangle> GetEnumerator()
+        {
+            foreach (var rectangle in _rectangles)
+            {
+                yield return rectangle;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
