@@ -11,6 +11,9 @@ namespace Views
         private readonly Sprite _sprite;
         private readonly View _view;
         private Clock _clock;
+        private float _rectangleX;
+        private float _rectangleY;
+        private RectangleShape _rectangle;
         private const float Speed = 100f; // Speed in pixels per second
 
         public MainScreen()
@@ -74,6 +77,13 @@ namespace Views
             // The viewport starts at 15% of the window's width and height from the top-left corner.
             // The viewport covers 70% of the window's width and height.
 
+            // Calculate the upper left corner of the viewport in window coordinates
+            _rectangleX = _view.Viewport.Left * _window.Size.X;
+            _rectangleY = _view.Viewport.Top * _window.Size.Y;
+
+            // Draw a rectangle in the upper left corner of the viewport
+            _rectangle = new RectangleShape(new Vector2f(50, 50));
+            _rectangle.FillColor = Color.Yellow;
 
 
             // Set the View for the window
@@ -100,20 +110,60 @@ namespace Views
                 // Clear screen
                 _window.Clear();
 
-                // Update the sprite's position based on elapsed time
-                // UpdateSpritePosition();
-
                 // Update the view
                 UpdateViewCenter();
 
                 // Draw the sprite
                 _window.Draw(_sprite);
 
+                // Save the current view
+                var currentView = _window.GetView();
+
+                // Set the view to the default view
+                _window.SetView(_window.DefaultView);
+
+                // Position the rectangle in viewport coordinates
+                UpdateRectangle();
+                _window.Draw(_rectangle);
+
+                // Restore the original view
+                _window.SetView(currentView);
+
                 // Update the window
                 _window.Display();
             }
 
             return this;
+        }
+
+        private void UpdateRectangle()
+        {
+            if (!_window.HasFocus())
+            {
+                return;
+            }
+
+            float deltaTime = _clock.Restart().AsSeconds();
+            var rectangleSpeed = 10000f;
+
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Left) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
+            {
+                _rectangleX -= rectangleSpeed * deltaTime;
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Right) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
+            {
+                _rectangleX += rectangleSpeed * deltaTime;
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Up) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
+            {
+                _rectangleY -= rectangleSpeed * deltaTime;
+            }
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Down) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
+            {
+                _rectangleY += rectangleSpeed * deltaTime;
+            }
+
+            _rectangle.Position = new Vector2f(_rectangleX, _rectangleY); // Adjust for the rectangle's size
         }
 
         private void Window_OnMouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
@@ -130,7 +180,6 @@ namespace Views
            _sprite.Scale = new Vector2f(f * scale.X, f * scale.Y);
         }
 
-
         private void UpdateViewCenter()
         {
             if (!_window.HasFocus())
@@ -140,22 +189,22 @@ namespace Views
 
             float deltaTime = _clock.Restart().AsSeconds();
 
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Left) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
                 //_view.Center += new Vector2f(-Speed * deltaTime, 0);
                 _view.Move(new Vector2f(-Speed * deltaTime, 0));
             }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Right) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
                 //_view.Center += new Vector2f(Speed * deltaTime, 0);
                 _view.Move(new Vector2f(Speed * deltaTime, 0));
             }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Up) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
                 //_view.Center += new Vector2f(0, -Speed * deltaTime);
                 _view.Move(new Vector2f(0, -Speed * deltaTime));
             }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Down) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
                 //_view.Center += new Vector2f(0, Speed * deltaTime);
                 _view.Move(new Vector2f(0, Speed * deltaTime));
@@ -163,33 +212,6 @@ namespace Views
 
             // Set the updated view back to the window
             _window.SetView(_view);
-        }
-
-        private void UpdateSpritePosition()
-        {
-            if (!_window.HasFocus())
-            {
-                return;
-            }
-
-            float deltaTime = _clock.Restart().AsSeconds();
-
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Left))
-            {
-                _sprite.Position += new Vector2f(-Speed * deltaTime, 0);
-            }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
-            {
-                _sprite.Position += new Vector2f(Speed * deltaTime, 0);
-            }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Up))
-            {
-                _sprite.Position += new Vector2f(0, -Speed * deltaTime);
-            }
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Down))
-            {
-                _sprite.Position += new Vector2f(0, Speed * deltaTime);
-            }
         }
 
         private void Window_OnKeyPressed(object? sender, KeyEventArgs e)
