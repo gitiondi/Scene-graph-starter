@@ -8,6 +8,8 @@ namespace Views
         private RectangleShape _rectangle;
         private int _id;
 
+        public RectangleShape RectangleShape => _rectangle;
+
         public Vector2f Position
         {
             get => _rectangle.Position;

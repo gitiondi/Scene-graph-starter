@@ -18,6 +18,7 @@ namespace Views
         private const float Speed = 100f; // Speed in pixels per second
 
         private Rectangle? _selectedRectangle;
+        private Vector2f _mouseOffset;
 
         public MainScreen()
         {
@@ -29,8 +30,8 @@ namespace Views
             rootPath = Path.Combine(rootPath) + Path.DirectorySeparatorChar;
             string resPath = Path.Combine(rootPath, "resources") + Path.DirectorySeparatorChar;
             string imgPath = Path.Combine(resPath, "images") + Path.DirectorySeparatorChar;
-            //string imgFile = Path.Combine(imgPath, "dungeon.jpeg");
-            string imgFile = Path.Combine(imgPath, "cartesian_grid.png");
+            string imgFile = Path.Combine(imgPath, "dungeon.jpeg");
+            //string imgFile = Path.Combine(imgPath, "cartesian_grid.png");
             imgFile = imgFile.Replace("\\", "/");
 
             _texture = new Texture(imgFile);
@@ -111,6 +112,7 @@ namespace Views
             _window.KeyPressed += Window_OnKeyPressed;
             _window.MouseWheelScrolled += Window_OnMouseWheelScrolled;
             _window.MouseButtonPressed += Window_OnMouseButtonPressed;
+            _window.MouseMoved += Window_OnMouseMoved;
 
             // Main loop
             while (_window.IsOpen)
@@ -150,14 +152,106 @@ namespace Views
             return this;
         }
 
-        private void Window_OnMouseButtonPressed(object? sender, MouseButtonEventArgs e)
-        {
-            if (_selectedRectangle == null)
-            {
-                var position = Mouse.GetPosition(_window);
 
+        private void Window_OnMouseMoved(object? sender, MouseMoveEventArgs e)
+        {
+            if (_selectedRectangle != null)
+            {
+                // Get the mouse position in window coordinates
+                var mousePosition = new Vector2f(e.X, e.Y);
+
+                // Convert the mouse position to the default view coordinates
+                var worldPosition = _window.MapPixelToCoords(new Vector2i((int)mousePosition.X, (int)mousePosition.Y), _window.DefaultView);
+
+                // Update the rectangle's position based on the mouse position and the offset
+                _selectedRectangle.Position = worldPosition - _mouseOffset;
             }
         }
+
+
+
+        //private void Window_OnMouseButtonPressed(object? sender, MouseButtonEventArgs e)
+        //{
+        //    // Get the mouse position in window coordinates
+        //    var mousePosition = new Vector2f(e.X, e.Y);
+
+        //    // Convert the mouse position to the default view coordinates
+        //    var worldPosition = _window.MapPixelToCoords(new Vector2i((int)mousePosition.X, (int)mousePosition.Y), _window.DefaultView);
+
+        //    // Check if the mouse position intersects with any of the rectangles
+        //    foreach (var rectangle in _rectangles)
+        //    {
+        //        var rectPosition = rectangle.Position;
+        //        var rectSize = rectangle.RectangleShape.Size; 
+
+        //        if (worldPosition.X >= rectPosition.X && worldPosition.X <= rectPosition.X + rectSize.X &&
+        //            worldPosition.Y >= rectPosition.Y && worldPosition.Y <= rectPosition.Y + rectSize.Y)
+        //        {
+        //            // The mouse click is on this rectangle
+        //            _selectedRectangle = rectangle;
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            _selectedRectangle = null;
+        //        }
+        //    }
+        //}
+
+        private void Window_OnMouseButtonPressed(object? sender, MouseButtonEventArgs e)
+        {
+
+            switch (e.Button)
+            {
+                case Mouse.Button.Left:
+                    OnLeftMouseButtonPressed(e);
+                    break;
+                case Mouse.Button.Right:
+                    OnRightMouseButtonPressed(e);
+                    break;
+            }
+
+        }
+
+        private void OnRightMouseButtonPressed(MouseButtonEventArgs e)
+        {
+            if (_selectedRectangle != null)
+            {
+                _selectedRectangle = null;
+            }
+        }
+
+        private void OnLeftMouseButtonPressed(MouseButtonEventArgs e)
+        {
+            // Get the mouse position in window coordinates
+            var mousePosition = new Vector2f(e.X, e.Y);
+
+            // Convert the mouse position to the default view coordinates
+            var worldPosition = _window.MapPixelToCoords(new Vector2i((int)mousePosition.X, (int)mousePosition.Y), _window.DefaultView);
+
+            // Check if the mouse position intersects with any of the rectangles
+            foreach (var rectangle in _rectangles)
+            {
+                var rectPosition = rectangle.Position;
+                var rectSize = rectangle.RectangleShape.Size;
+
+                if (worldPosition.X >= rectPosition.X && worldPosition.X <= rectPosition.X + rectSize.X &&
+                    worldPosition.Y >= rectPosition.Y && worldPosition.Y <= rectPosition.Y + rectSize.Y)
+                {
+                    // The mouse click is on this rectangle
+                    _selectedRectangle = rectangle;
+
+                    // Calculate the offset
+                    _mouseOffset = worldPosition - rectPosition;
+                    break;
+                }
+                else
+                {
+                    _selectedRectangle = null;
+                }
+            }
+        }
+
 
         private void UpdateRectangle()
         {
