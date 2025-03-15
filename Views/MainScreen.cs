@@ -11,9 +11,10 @@ namespace Views
         private readonly Sprite _sprite;
         private readonly View _view;
         private Clock _clock;
-        private float _rectangleX;
-        private float _rectangleY;
-        private RectangleShape _rectangle;
+
+        private readonly Rectangles _rectangles;
+        private Vector2f _upperLeftViewportCorner;
+
         private const float Speed = 100f; // Speed in pixels per second
 
         public MainScreen()
@@ -78,12 +79,14 @@ namespace Views
             // The viewport covers 70% of the window's width and height.
 
             // Calculate the upper left corner of the viewport in window coordinates
-            _rectangleX = _view.Viewport.Left * _window.Size.X;
-            _rectangleY = _view.Viewport.Top * _window.Size.Y;
+            var rectangleX = _view.Viewport.Left * _window.Size.X;
+            var rectangleY = _view.Viewport.Top * _window.Size.Y;
+            _upperLeftViewportCorner = new Vector2f(rectangleX, rectangleY);
 
             // Draw a rectangle in the upper left corner of the viewport
-            _rectangle = new RectangleShape(new Vector2f(50, 50));
-            _rectangle.FillColor = Color.Yellow;
+            _rectangles = new Rectangles();
+            _rectangles.AddRectangle(new Vector2f(50, 50), Color.Yellow);
+            _rectangles.Position = _upperLeftViewportCorner;
 
 
             // Set the View for the window
@@ -124,7 +127,7 @@ namespace Views
 
                 // Position the rectangle in viewport coordinates
                 UpdateRectangle();
-                _window.Draw(_rectangle);
+                _rectangles.Draw(_window);
 
                 // Restore the original view
                 _window.SetView(currentView);
@@ -146,24 +149,28 @@ namespace Views
             float deltaTime = _clock.Restart().AsSeconds();
             var rectangleSpeed = 10000f;
 
+            var rectangleX = _rectangles.Position.X;
+            var rectangleY = _rectangles.Position.Y;
+
+
             if (Keyboard.IsKeyPressed(Keyboard.Key.Left) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                _rectangleX -= rectangleSpeed * deltaTime;
+                rectangleX -= rectangleSpeed * deltaTime;
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Right) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                _rectangleX += rectangleSpeed * deltaTime;
+                rectangleX += rectangleSpeed * deltaTime;
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Up) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                _rectangleY -= rectangleSpeed * deltaTime;
+                rectangleY -= rectangleSpeed * deltaTime;
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Down) && Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                _rectangleY += rectangleSpeed * deltaTime;
+                rectangleY += rectangleSpeed * deltaTime;
             }
 
-            _rectangle.Position = new Vector2f(_rectangleX, _rectangleY); // Adjust for the rectangle's size
+            _rectangles.Position = new Vector2f(rectangleX, rectangleY);
         }
 
         private void Window_OnMouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
