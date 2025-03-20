@@ -123,17 +123,9 @@ namespace Views
             // Convert the mouse position to the default view coordinates
             var worldPosition = _window.MapPixelToCoords(new Vector2i((int)mousePosition.X, (int)mousePosition.Y), _window.DefaultView);
 
-            //_selectedNode.Position = worldPosition - _mouseOffset; //todo hiam
-            switch (_selectedNode)
+            if (_selectedNode != null)
             {
-                case Rectangle rectangle:
-                    rectangle.Position = worldPosition - _mouseOffset;
-                    break;
-                case GroupNode groupNode:
-                    groupNode.Position = worldPosition - _mouseOffset;
-                    break;
-                case null:
-                    break;
+                _selectedNode.Position = worldPosition - _mouseOffset;
             }
         }
 
@@ -148,6 +140,53 @@ namespace Views
                 case Mouse.Button.Right:
                     OnRightMouseButtonPressed(e);
                     break;
+            }
+        }
+
+        private void OnLeftMouseButtonPressed(MouseButtonEventArgs e)
+        {
+            var worldPosition = _window.MapPixelToCoords(new Vector2i(e.X, e.Y), _window.DefaultView);
+
+            // Check if the mouse position intersects with any of the rectangles
+            foreach (var rootNodeChild in _rootNode.Children)
+            {
+                var rectangle = rootNodeChild as Rectangle;
+                var rectPosition = _rootNode.Position + rectangle.Position;
+                var rectSize = rectangle.RectangleShape.Size;
+
+                if (worldPosition.X >= rectPosition.X && worldPosition.X <= rectPosition.X + rectSize.X &&
+                    worldPosition.Y >= rectPosition.Y && worldPosition.Y <= rectPosition.Y + rectSize.Y)
+                {
+                    if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
+                    {
+                        _selectedNode = _rootNode;
+
+                        for (var i = 0; i < _rootNode.Children.Count; i++)
+                        {
+                            var child = _rootNode.Children[i];
+                            if (i == 0)
+                            {
+                                // Store the position of the GroupNode identical to the first child
+                                _selectedNode.Position = child.Position;
+                                var offset = new Vector2f();
+                                child.Position = offset;
+                            }
+                            else
+                            {
+                                // Calculate the offset of the child from the GroupNode's position
+                                var offset = child.Position - _selectedNode.Position;
+                                child.Position = offset; // Store the offset in the child's position
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _selectedNode = rectangle;
+                    }
+                    _mouseOffset = worldPosition - rectPosition;
+                    break;
+                }
+                _selectedNode = null;
             }
         }
 
@@ -170,70 +209,6 @@ namespace Views
                     break;
             }
             _selectedNode = null;
-        }
-
-        private void OnLeftMouseButtonPressed(MouseButtonEventArgs e)
-        {
-            // Get the mouse position in window coordinates
-            var mousePosition = new Vector2f(e.X, e.Y);
-
-            // Convert the mouse position to the default view coordinates
-            var worldPosition = _window.MapPixelToCoords(new Vector2i((int)mousePosition.X, (int)mousePosition.Y), _window.DefaultView);
-
-            // Check if the mouse position intersects with any of the rectangles
-            foreach (var rootNodeChild in _rootNode.Children)
-            {
-                var rectangle = rootNodeChild as Rectangle;
-                //var rectShape = rect?.RectangleShape;
-                var rectPosition = _rootNode.Position + rectangle.Position;
-                var rectSize = rectangle.RectangleShape.Size;
-
-                if (rootNodeChild.Parent[0] == rootNodeChild)
-                {
-                    Debug.WriteLine($"## worldPosition: {worldPosition}");
-                    Debug.WriteLine($"## rectPosition: {rectPosition}");
-                    Debug.WriteLine($"## ");
-                }
-
-                if (worldPosition.X >= rectPosition.X && worldPosition.X <= rectPosition.X + rectSize.X &&
-                    worldPosition.Y >= rectPosition.Y && worldPosition.Y <= rectPosition.Y + rectSize.Y)
-                {
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
-                    {
-                        _selectedNode = _rootNode;
-
-                        for (int i = 0; i < _rootNode.Children.Count; i++)
-                        {
-                            var child = _rootNode.Children[i];
-                            if (i == 0)
-                            {
-                                // Store the position of the GroupNode identical to the first child
-                                _selectedNode.Position = child.Position;
-                                var offset = new Vector2f();
-                                child.Position = offset;
-                            }
-                            else
-                            {
-                                // Calculate the offset of the child from the GroupNode's position
-                                var offset = child.Position - _selectedNode.Position;
-                                child.Position = offset; // Store the offset in the child's position
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // The mouse click is on this rectangle
-                        _selectedNode = rectangle;
-                    }
-
-                    // Calculate the offset
-                    _mouseOffset = worldPosition - rectPosition;
-                    break;
-                }
-
-                _selectedNode = null;
-
-            }
         }
 
         private void Window_OnMouseWheelScrolled(object? sender, MouseWheelScrollEventArgs e)
@@ -261,26 +236,21 @@ namespace Views
 
             if (Keyboard.IsKeyPressed(Keyboard.Key.Left) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                //_view.Center += new Vector2f(-Speed * deltaTime, 0);
                 _view.Move(new Vector2f(-Speed * deltaTime, 0));
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Right) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                //_view.Center += new Vector2f(Speed * deltaTime, 0);
                 _view.Move(new Vector2f(Speed * deltaTime, 0));
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Up) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                //_view.Center += new Vector2f(0, -Speed * deltaTime);
                 _view.Move(new Vector2f(0, -Speed * deltaTime));
             }
             if (Keyboard.IsKeyPressed(Keyboard.Key.Down) && !Keyboard.IsKeyPressed(Keyboard.Key.LShift))
             {
-                //_view.Center += new Vector2f(0, Speed * deltaTime);
                 _view.Move(new Vector2f(0, Speed * deltaTime));
             }
 
-            // Set the updated view back to the window
             _window.SetView(_view);
         }
     }
