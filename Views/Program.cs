@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             var mainScreen = new MainScreen();
-            mainScreen.execute();
+            mainScreen.Execute();
         }
     }
 }
