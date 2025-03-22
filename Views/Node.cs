@@ -16,6 +16,8 @@ namespace Views
 
         public abstract Vector2f GetSize();
 
+        public abstract bool IsPointInNode(Vector2f point);
+
         public virtual void Move(Vector2f offset)
         {
             Position += offset;

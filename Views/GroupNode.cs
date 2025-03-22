@@ -24,6 +24,11 @@ public class GroupNode : Node
         throw new NotImplementedException();
     }
 
+    public override bool IsPointInNode(Vector2f point)
+    {
+        throw new NotImplementedException();
+    }
+
     public override void Draw(RenderWindow window)
     {
         foreach (var child in _children)

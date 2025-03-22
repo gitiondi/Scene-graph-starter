@@ -30,32 +30,13 @@ namespace Views
             return _rectangle.Size;
         }
 
+        public override bool IsPointInNode(Vector2f point)
+        {
+            var childPosition = Position + Parent.Position;
+            var childSize = GetSize();
+
+            return point.X >= childPosition.X && point.X <= childPosition.X + childSize.X &&
+                   point.Y >= childPosition.Y && point.Y <= childPosition.Y + childSize.Y;
+        }
     }
-
-
-    //public class Rectangle
-    //{
-    //    private RectangleShape _rectangle;
-    //    private int _id;
-
-    //    public RectangleShape RectangleShape => _rectangle;
-
-    //    public Vector2f Position
-    //    {
-    //        get => _rectangle.Position;
-    //        set => _rectangle.Position = value;
-    //    }
-
-    //    public Rectangle(Vector2f size, Color color, int id)
-    //    {
-    //        _rectangle = new RectangleShape(size);
-    //        _rectangle.FillColor = color;
-    //        _id = id;
-    //    }
-
-    //    public void Draw(RenderWindow window)
-    //    {
-    //        window.Draw(_rectangle);
-    //    }
-    //}
 }
