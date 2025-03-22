@@ -9,7 +9,7 @@ namespace Views
 
         public GroupNode Parent { get; set; }
 
-        public Node(Vector2f position)
+        protected Node(Vector2f position)
         {
             Position = position;
         }
@@ -18,9 +18,6 @@ namespace Views
 
         public abstract bool IsPointInNode(Vector2f point);
 
-        public virtual void Draw(RenderWindow window)
-        {
-            // Override in derived classes to draw the node
-        }
+        public abstract void Draw(RenderWindow window);
     }
 }
