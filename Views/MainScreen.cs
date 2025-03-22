@@ -66,6 +66,8 @@ namespace Views
             _rootNode.AddChild(rectangleRed);
             rectangleRed.Position = new Vector2f(upperLeftViewportCorner.X, upperLeftViewportCorner.Y + 50);
 
+            _rootNode.UpdatePosition();
+
             _window.SetView(_view);
             _window.SetFramerateLimit(60);
 
@@ -125,7 +127,18 @@ namespace Views
 
             if (_selectedNode != null)
             {
-                _selectedNode.Position = worldPosition - _mouseOffset;
+                switch (_selectedNode)
+                {
+                    case GroupNode:
+                        _selectedNode.Position = worldPosition - _mouseOffset;
+                        break;
+                    case Rectangle rectangle:
+                        rectangle.Position = (worldPosition - _mouseOffset) - rectangle.Parent.Position;
+                        break;
+                }
+
+
+
             }
         }
 
@@ -147,38 +160,12 @@ namespace Views
         {
             var windowPosition = new Vector2f(e.X, e.Y);
 
-            // Check if the mouse position intersects with any of the rectangles
             foreach (var nodeChild in _rootNode.Children)
             {
                 var childPosition = _rootNode.Position + nodeChild.Position;
                 if (nodeChild.IsPointInNode(windowPosition))
                 {
-                    if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
-                    {
-                        _selectedNode = _rootNode;
-
-                        for (var i = 0; i < _rootNode.Children.Count; i++)
-                        {
-                            var child = _rootNode.Children[i];
-                            if (i == 0)
-                            {
-                                // Store the position of the GroupNode identical to the first child
-                                _selectedNode.Position = child.Position;
-                                var offset = new Vector2f();
-                                child.Position = offset;
-                            }
-                            else
-                            {
-                                // Calculate the offset of the child from the GroupNode's position
-                                var offset = child.Position - _selectedNode.Position;
-                                child.Position = offset; // Store the offset in the child's position
-                            }
-                        }
-                    }
-                    else
-                    {
-                        _selectedNode = nodeChild;
-                    }
+                    _selectedNode = Keyboard.IsKeyPressed(Keyboard.Key.LShift) ? _rootNode : nodeChild;
                     _mouseOffset = windowPosition - childPosition;
                     break;
                 }
@@ -188,22 +175,24 @@ namespace Views
 
         private void OnRightMouseButtonPressed(MouseButtonEventArgs e)
         {
+            GroupNode? gNode = null;
             switch (_selectedNode)
             {
                 case Rectangle rectangle:
+                    gNode = rectangle.Parent;
                     break;
                 case GroupNode groupNode:
-
-                    foreach (var child in groupNode.Children)
-                    {
-                        child.Position = groupNode.Position + child.Position;
-                    }
-                    groupNode.Position = new Vector2f();
-
-                    break;
-                case null:
+                    gNode = groupNode;
                     break;
             }
+
+            foreach (var child in gNode.Children)
+            {
+                child.Position = gNode.Position + child.Position;
+            }
+            gNode.UpdatePosition();
+
+
             _selectedNode = null;
         }
 

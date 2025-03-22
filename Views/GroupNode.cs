@@ -19,6 +19,18 @@ public class GroupNode : Node
         _children.Add(child);
     }
 
+    public void UpdatePosition()
+    {
+        if(_children.Any())
+        {
+            Position = _children[0].Position;
+            foreach (var child in _children)
+            {
+                child.Position -= Position;
+            }
+        }
+    }
+
     public override Vector2f GetSize()
     {
         throw new NotImplementedException();

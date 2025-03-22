@@ -18,11 +18,6 @@ namespace Views
 
         public abstract bool IsPointInNode(Vector2f point);
 
-        public virtual void Move(Vector2f offset)
-        {
-            Position += offset;
-        }
-
         public virtual void Draw(RenderWindow window)
         {
             // Override in derived classes to draw the node
