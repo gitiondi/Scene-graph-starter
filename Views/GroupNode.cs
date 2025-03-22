@@ -19,36 +19,10 @@ public class GroupNode : Node
         _children.Add(child);
     }
 
-    //public override void Move(Vector2f offset)
-    //{
-    //    base.Move(offset);
-    //    foreach (var child in _children)
-    //    {
-    //        child.Move(offset);
-    //    }
-    //}
-
-    //public override Vector2f Position
-    //{
-    //    get
-    //    {
-    //        return base.Position;
-    //    }
-    //    set
-    //    {
-    //        base.Position = value;
-    //        if (_children == null)
-    //        {
-    //            return;
-    //        }
-
-    //        foreach (var child in _children)
-    //        {
-    //            var offset = child.Position;
-    //            child.Position = value + offset;
-    //        }
-    //    }
-    //}
+    public override Vector2f GetSize()
+    {
+        throw new NotImplementedException();
+    }
 
     public override void Draw(RenderWindow window)
     {

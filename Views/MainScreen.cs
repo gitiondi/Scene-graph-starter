@@ -145,17 +145,16 @@ namespace Views
 
         private void OnLeftMouseButtonPressed(MouseButtonEventArgs e)
         {
-            var worldPosition = _window.MapPixelToCoords(new Vector2i(e.X, e.Y), _window.DefaultView);
+            var windowPosition = new Vector2f(e.X, e.Y);
 
             // Check if the mouse position intersects with any of the rectangles
             foreach (var rootNodeChild in _rootNode.Children)
             {
-                var rectangle = rootNodeChild as Rectangle;
-                var rectPosition = _rootNode.Position + rectangle.Position;
-                var rectSize = rectangle.RectangleShape.Size;
+                var rectPosition = _rootNode.Position + rootNodeChild.Position;
+                var rectSize = rootNodeChild.GetSize();
 
-                if (worldPosition.X >= rectPosition.X && worldPosition.X <= rectPosition.X + rectSize.X &&
-                    worldPosition.Y >= rectPosition.Y && worldPosition.Y <= rectPosition.Y + rectSize.Y)
+                if (windowPosition.X >= rectPosition.X && windowPosition.X <= rectPosition.X + rectSize.X &&
+                    windowPosition.Y >= rectPosition.Y && windowPosition.Y <= rectPosition.Y + rectSize.Y)
                 {
                     if (Keyboard.IsKeyPressed(Keyboard.Key.LShift))
                     {
@@ -181,9 +180,9 @@ namespace Views
                     }
                     else
                     {
-                        _selectedNode = rectangle;
+                        _selectedNode = rootNodeChild;
                     }
-                    _mouseOffset = worldPosition - rectPosition;
+                    _mouseOffset = windowPosition - rectPosition;
                     break;
                 }
                 _selectedNode = null;

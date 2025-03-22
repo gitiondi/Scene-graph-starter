@@ -24,6 +24,12 @@ namespace Views
             _rectangle.Position = Position + Parent.Position;
             window.Draw(_rectangle);
         }
+
+        public override Vector2f GetSize()
+        {
+            return _rectangle.Size;
+        }
+
     }
 
 

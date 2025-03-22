@@ -3,7 +3,7 @@ using SFML.System;
 
 namespace Views
 {
-    public class Node
+    public abstract class Node
     {
         public virtual Vector2f Position { get; set; }
 
@@ -13,6 +13,8 @@ namespace Views
         {
             Position = position;
         }
+
+        public abstract Vector2f GetSize();
 
         public virtual void Move(Vector2f offset)
         {
