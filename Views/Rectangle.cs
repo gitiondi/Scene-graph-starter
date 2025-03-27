@@ -1,7 +1,7 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 
-namespace Views
+namespace Scene_Graph_Starter
 {
     public class Rectangle : Node
     {

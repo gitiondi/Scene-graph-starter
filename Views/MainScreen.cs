@@ -2,7 +2,7 @@
 using SFML.System;
 using SFML.Window;
 
-namespace Views
+namespace Scene_Graph_Starter
 {
     public class MainScreen
     {

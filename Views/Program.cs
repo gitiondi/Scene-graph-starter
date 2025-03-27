@@ -1,4 +1,4 @@
-﻿namespace Views
+﻿namespace Scene_Graph_Starter
 {
     public class Program
     {
