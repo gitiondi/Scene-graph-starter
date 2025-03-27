@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
@@ -13,18 +12,14 @@ namespace Views
         private readonly Clock _clock;
         private const float Speed = 100f; // Speed in pixels per second
         private Vector2f _mouseOffset;
-        private readonly GroupNode _rootNode;
         private Node? _selectedNode;
+        private readonly Rectangle _sceneRoot;
 
         public MainScreen()
         {
             _window = new RenderWindow(new VideoMode(1280, 720), "SFML Works!");
-            _window.Closed += (sender, e) => _window.Close();
-
-            var imgFile = LoadBackgroundImage();
-            var texture = new Texture(imgFile);
-            _sprite = new Sprite(texture);
-
+            _window.Closed += (_, _) => _window.Close();
+            _sprite = new Sprite(new Texture(LoadBackgroundImage()));
             _selectedNode = null;
 
             // Set the origin of the sprite to its center
@@ -32,19 +27,14 @@ namespace Views
             _sprite.Origin = spriteCenter;
             _sprite.Position = new Vector2f(1000, 1000);
 
-            // Calculate the window dimensions
-            float windowWidth = _window.Size.X;
-            float windowHeight = _window.Size.Y;
-
-            var viewPortWidth = 0.9f;
-            var viewPortHeight = 0.6f;
-            var viewPortAspect = windowWidth * viewPortWidth / (windowHeight * viewPortHeight);
+            const float viewPortWidth = 0.9f;
+            const float viewPortHeight = 0.6f;
+            var viewPortAspect = _window.Size.X * viewPortWidth / (_window.Size.Y * viewPortHeight);
             var viewPortRect = new FloatRect(0.05f, 0.1f, viewPortWidth, viewPortHeight);
 
-            var viewWidthAbs = windowWidth * viewPortWidth;
-            var viewRectWidth = viewWidthAbs;
-            var viewRectHeight = viewRectWidth / viewPortAspect;
-            var viewRect = new FloatRect(1000, 1000, viewRectWidth, viewRectHeight);
+            var viewWidthAbs = _window.Size.X * viewPortWidth;
+            var viewRectHeight = viewWidthAbs / viewPortAspect;
+            var viewRect = new FloatRect(1000, 1000, viewWidthAbs, viewRectHeight);
 
             // Create the View
             _view = new View(viewRect);
@@ -56,17 +46,16 @@ namespace Views
             var rectangleY = _view.Viewport.Top * _window.Size.Y;
             var upperLeftViewportCorner = new Vector2f(rectangleX, rectangleY);
 
-            _rootNode = new GroupNode(new Vector2f());
-
-            var rectangleYellow = new Rectangle(new Vector2f(50, 50), Color.Yellow, 1);
-            _rootNode.AddChild(rectangleYellow);
-            rectangleYellow.Position = upperLeftViewportCorner;
+            _sceneRoot = new Rectangle(new Vector2f(50, 50), Color.Yellow, 1);
+            _sceneRoot.Position = upperLeftViewportCorner;
 
             var rectangleRed = new Rectangle(new Vector2f(50, 50), Color.Red, 2);
-            _rootNode.AddChild(rectangleRed);
-            rectangleRed.Position = new Vector2f(upperLeftViewportCorner.X, upperLeftViewportCorner.Y + 50);
+            rectangleRed.Position = new Vector2f(0, 50);
+            _sceneRoot.AddChild(rectangleRed);
 
-            _rootNode.UpdatePosition();
+            var rectangleBlue = new Rectangle(new Vector2f(50, 50), Color.Blue, 3);
+            rectangleBlue.Position = new Vector2f(0, 100);
+            _sceneRoot.AddChild(rectangleBlue);
 
             _window.SetView(_view);
             _window.SetFramerateLimit(60);
@@ -107,7 +96,7 @@ namespace Views
                 // Set the view to the default view
                 _window.SetView(_window.DefaultView);
 
-                _rootNode.Draw(_window);
+                _window.Draw(_sceneRoot);
 
                 // Restore the original view
                 _window.SetView(currentView);
@@ -119,26 +108,19 @@ namespace Views
 
         private void Window_OnMouseMoved(object? sender, MouseMoveEventArgs e)
         {
-            // Get the mouse position in window coordinates
             var mousePosition = new Vector2f(e.X, e.Y);
-
-            // Convert the mouse position to the default view coordinates
-            var worldPosition = _window.MapPixelToCoords(new Vector2i((int)mousePosition.X, (int)mousePosition.Y), _window.DefaultView);
 
             if (_selectedNode != null)
             {
-                switch (_selectedNode)
+                if(_selectedNode.IsRoot)
                 {
-                    case GroupNode:
-                        _selectedNode.Position = worldPosition - _mouseOffset;
-                        break;
-                    case Rectangle rectangle:
-                        rectangle.Position = (worldPosition - _mouseOffset) - rectangle.Parent.Position;
-                        break;
+                    _selectedNode.Position = mousePosition - _mouseOffset;
                 }
-
-
-
+                else
+                {
+                    var relativePos = mousePosition - _sceneRoot.Position;
+                    _selectedNode.Position = relativePos - _mouseOffset;
+                }
             }
         }
 
@@ -160,39 +142,28 @@ namespace Views
         {
             var windowPosition = new Vector2f(e.X, e.Y);
 
-            foreach (var nodeChild in _rootNode.Children)
+            if (_sceneRoot.IsPointInNode(windowPosition))
             {
-                var childPosition = _rootNode.Position + nodeChild.Position;
-                if (nodeChild.IsPointInNode(windowPosition))
+                _selectedNode = _sceneRoot;
+                _mouseOffset = windowPosition - _sceneRoot.Position;
+            }
+            else
+            {
+                foreach (var nodeChild in _sceneRoot.Children)
                 {
-                    _selectedNode = Keyboard.IsKeyPressed(Keyboard.Key.LShift) ? _rootNode : nodeChild;
-                    _mouseOffset = windowPosition - childPosition;
-                    break;
+                    var childPosition = _sceneRoot.Position + nodeChild.Position;
+                    if (nodeChild.IsPointInNode(windowPosition))
+                    {
+                        _selectedNode = nodeChild;
+                        _mouseOffset = windowPosition - childPosition;
+                        break;
+                    }
                 }
-                _selectedNode = null;
             }
         }
 
         private void OnRightMouseButtonPressed(MouseButtonEventArgs e)
         {
-            GroupNode? gNode = null;
-            switch (_selectedNode)
-            {
-                case Rectangle rectangle:
-                    gNode = rectangle.Parent;
-                    break;
-                case GroupNode groupNode:
-                    gNode = groupNode;
-                    break;
-            }
-
-            foreach (var child in gNode.Children)
-            {
-                child.Position = gNode.Position + child.Position;
-            }
-            gNode.UpdatePosition();
-
-
             _selectedNode = null;
         }
 
