@@ -1,4 +1,6 @@
-# Scene Graph starter code for .NET SFML
+# Scene graph starter code for .NET SFML
+
+![Scene graph example](Views/resources/images/readme_image.png)
 
 ## This is a simple scene graph implementation using .NET SFML.
 
