@@ -26,5 +26,5 @@ AddChild() creates the relationship between the nodes.
 
 RectangleNode is a concrete implementation of Node. It contains a SFML.Graphics.RectangleShape as a member.  
 
-[Some background infoe](https://www.sfml-dev.org/tutorials/3.0/graphics/transform/#transforming-your-own-classes)
+[Some background info](https://www.sfml-dev.org/tutorials/3.0/graphics/transform/#transforming-your-own-classes)
 
